@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Very Simple JQuery Translation</title>
+        <meta name="description" content="Valid alternative to POEdit">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        
+        <h1 data-translate="I'm a text that exist in English, Italian and Spanish"></h1>
+        <h2 data-translate="I exist only in English and Italian"></h2>
+        <p data-translate="Me only in English"></p>
+        <span data-translate="I don't exist"></span>
+
+        <span data-translate="I have only 1 single number"></span>
+        <span data-translate="I have 4 numbers"></span>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script>
+            // Variables 
+            var lang= window.navigator.language, // Check the Browser language
+                translate; // Container of all translations
+
+            // Call translations json file and populate translate variable  
+            $.getJSON("translations.json", function(texts) {
+                translate=texts;
+
+                // Translations Function: Get all the element with data-text
+                $("[data-translate]").each(function() {
+                    let text= $(this).attr('data-translate'), // Save the Text into the variable
+                        numbers= text.match(/\d+/g),
+                        element=  $('[data-translate="'+text+'"]'),
+                        postHTML;
+
+                    if (numbers != null && numbers>1) 
+                            text= text.replace(numbers, '%n');
+                    
+                    if (translate[text]!==undefined) { // Check if exist the text in translation.json                      
+
+                        if (translate[text][lang]!==undefined) { // Check if exist the text in the browser language
+                            postHTML= translate[text][lang];
+                        } else { // If not exist the lang, show the text in primary Language (Recomend: English)
+                            postHTML= text;
+                        }
+
+                        if (numbers != null && numbers>1) 
+                            postHTML= postHTML.replace('%n', numbers);
+
+                        element.html(postHTML);
+
+                    } else {
+                        $('[data-translate="'+text+'"]').html("ERR").css({'color':'red','font-weight':'bold'});
+                    }
+                });
+            });
+            
+            
+        </script>
+    </body>
+</html>
